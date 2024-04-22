@@ -21,6 +21,39 @@ namespace QuoteAPI.Controllers
             _context = context;
         }
 
+
+        [HttpGet("Search")]
+        public ActionResult<IEnumerable<Quote>> SearchQuotes([FromQuery] string author, [FromQuery] List<string> tags, [FromQuery] string? quote = null)
+        {
+            IQueryable<Quote> query = _context.Quote;
+
+            // Apply filters
+            if (!string.IsNullOrEmpty(author))
+            {
+                query = query.Where(q => q.Author != null && q.Author.ToLower().Contains(author.ToLower()));
+            }
+
+            if (tags != null && tags.Any())
+            {
+                query = query.Where(q => q.Tags != null && tags.All(tag => q.Tags.Contains(tag)));
+            }
+
+            if (!string.IsNullOrEmpty(quote))
+            {
+                query = query.Where(q => q.QuoteName != null && q.QuoteName.ToLower().Contains(quote.ToLower()));
+            }
+
+            var result = query.ToList();
+
+            if (result.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return result;
+        }
+
+
         // GET: api/Quotes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Quote>>> GetQuote()
