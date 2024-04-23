@@ -56,6 +56,10 @@
     [Inject]
     public NavigationManager UrlNavigationManager { get; set; }
 
+    List<QuoteUI.Model.Quote> Quotes = new List<QuoteUI.Model.Quote>();
+    List<QuoteUI.Model.Quote> FilteredQuotes = new List<QuoteUI.Model.Quote>();
+
+
     [Parameter]
     public int id { get; set; }
 
@@ -111,12 +115,28 @@
                 QuoteService.CreateQuote(model);
             });
         }
+        await FetchQuotesAsync();
         Cancel();
     }
 
     public void Cancel()
     {
         UrlNavigationManager.NavigateTo("/fetchdata");
+    }
+
+    private async Task FetchQuotesAsync()
+    {
+        var response = await QuoteService.GetAllQuotes();
+
+        if (response.StatusCode == Common.Enums.Status.Success)
+        {
+            Quotes = (List<QuoteUI.Model.Quote>)response.ReturnValue;
+            FilteredQuotes = Quotes;
+        }
+        else
+        {
+            Console.WriteLine("Failed to fetch quotes from the API.");
+        }
     }
 
 

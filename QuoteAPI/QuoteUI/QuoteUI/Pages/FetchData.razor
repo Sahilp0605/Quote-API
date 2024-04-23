@@ -119,8 +119,7 @@ else
             var quotesResponse = await service.GetAllQuotes();
             if (quotesResponse.StatusCode == Common.Enums.Status.Success)
             {
-                Quotes = (List<QuoteUI.Model.Quote>)quotesResponse.ReturnValue;
-                FilteredQuotes = Quotes;
+                await FetchQuotesAsync();
             }
             else
             {
@@ -135,5 +134,19 @@ else
 
     }
 
+    private async Task FetchQuotesAsync()
+    {
+        var response = await service.GetAllQuotes();
+
+        if (response.StatusCode == Common.Enums.Status.Success)
+        {
+            Quotes = (List<QuoteUI.Model.Quote>)response.ReturnValue;
+            FilteredQuotes = Quotes;
+        }
+        else
+        {
+            Console.WriteLine("Failed to fetch quotes from the API.");
+        }
+    }
 
 }
