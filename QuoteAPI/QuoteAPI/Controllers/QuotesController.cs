@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using QuoteAPI.ApplicationDbContext;
 using QuoteAPI.Model;
+
 
 namespace QuoteAPI.Controllers
 {
@@ -22,46 +24,36 @@ namespace QuoteAPI.Controllers
         }
 
 
+        // GET: api/Quote/Search
         [HttpGet("Search")]
-        public ActionResult<IEnumerable<Quote>> SearchQuotes([FromQuery] string author, [FromQuery] List<string> tags, [FromQuery] string? quote = null)
+        public async Task<ActionResult<IEnumerable<Quote>>> SearchQuotes(string searchKey)
         {
-            IQueryable<Quote> query = _context.Quote;
-
-            // Apply filters
-            if (!string.IsNullOrEmpty(author))
+            if (string.IsNullOrEmpty(searchKey))
             {
-                query = query.Where(q => q.Author != null && q.Author.ToLower().Contains(author.ToLower()));
+                return BadRequest("Search key cannot be empty.");
             }
 
-            if (tags != null && tags.Any())
-            {
-                query = query.Where(q => q.Tags != null && tags.All(tag => q.Tags.Contains(tag)));
-            }
+            IQueryable<Quote> query = _context.Quote.Where(q =>
+                q.Author.Contains(searchKey) ||
+                q.QuoteName.Contains(searchKey) 
+            );
 
-            if (!string.IsNullOrEmpty(quote))
-            {
-                query = query.Where(q => q.QuoteName != null && q.QuoteName.ToLower().Contains(quote.ToLower()));
-            }
+            var result = await query.ToListAsync();
 
-            var result = query.ToList();
-
-            if (result.Count == 0)
-            {
-                return NotFound();
-            }
-
-            return result;
+            return Ok(result);
         }
+
+
 
 
         // GET: api/Quotes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Quote>>> GetQuote()
         {
-          if (_context.Quote == null)
-          {
-              return NotFound();
-          }
+            if (_context.Quote == null)
+            {
+                return NotFound();
+            }
             return await _context.Quote.ToListAsync();
         }
 
@@ -69,10 +61,10 @@ namespace QuoteAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Quote>> GetQuote(int id)
         {
-          if (_context.Quote == null)
-          {
-              return NotFound();
-          }
+            if (_context.Quote == null)
+            {
+                return NotFound();
+            }
             var quote = await _context.Quote.FindAsync(id);
 
             if (quote == null)
@@ -119,10 +111,10 @@ namespace QuoteAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Quote>> PostQuote(Quote quote)
         {
-          if (_context.Quote == null)
-          {
-              return Problem("Entity set 'QuoteDbContext.Quote'  is null.");
-          }
+            if (_context.Quote == null)
+            {
+                return Problem("Entity set 'QuoteDbContext.Quote'  is null.");
+            }
             _context.Quote.Add(quote);
             await _context.SaveChangesAsync();
 
