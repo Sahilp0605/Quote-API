@@ -16,13 +16,17 @@
             Add Quote
         </a>
     </div>
-    <div class="input-group col-md-6">
-        <input type="text" class="form-control" placeholder="Search quote" @bind="SearchString" @bind:event="oninput" />
-        <div class="input-group-append">
-            <button class="btn btn-info" @onclick="ResetSearch">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
+    <div class="input-group col">
+        <input type="text" class="form-control" placeholder="Search"
+               @bind="SearchString" @bind:event="oninput" @onkeyup="FilterQuotes" />
+        @if (SearchString.Length > 0)
+        {
+            <div class="input-group-append">
+                <button class="btn btn-info" @onclick="ResetSearch">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        }
     </div>
 </div>
 
@@ -48,7 +52,7 @@ else
                 <tr>
                     <td>@quote.Author</td>
                     <td>@quote.QuoteName</td>
-                    <td>@string.Join(", ", quote.Tags)</td>
+                    <td>@(quote.Tags != null ? string.Join(", ", quote.Tags) : "No tags")</td>
                     <td>
                         <a href="/Quote/edit/@quote.Id" class="btn btn-primary" role="button">Edit</a>
                         <button class="btn btn-danger" @onclick="() => DeleteQuote(quote.Id)">Delete</button>
@@ -62,7 +66,8 @@ else
 @code {
     List<QuoteUI.Model.Quote> FilteredQuotes = new List<QuoteUI.Model.Quote>();
     List<QuoteUI.Model.Quote> Quotes = new List<QuoteUI.Model.Quote>();
-    string SearchString { get; set; }
+    // string SearchString { get; set; }
+    protected string SearchString { get; set; } = string.Empty;
 
 
 
@@ -91,10 +96,10 @@ else
         else
         {
             FilteredQuotes = Quotes.Where(q =>
-                q.Author.Contains(SearchString, StringComparison.OrdinalIgnoreCase) ||
-                q.QuoteName.Contains(SearchString, StringComparison.OrdinalIgnoreCase) ||
-                q.Tags.Any(tag => tag.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
-            ).ToList();
+            q.Author.Contains(SearchString, StringComparison.OrdinalIgnoreCase) ||
+            q.QuoteName.Contains(SearchString, StringComparison.OrdinalIgnoreCase) ||
+            (q.Tags != null && q.Tags.Any(tag => tag.Contains(SearchString, StringComparison.OrdinalIgnoreCase)))
+        ).ToList();
         }
     }
 
@@ -105,13 +110,29 @@ else
     }
 
 
-    protected void DeleteQuote(int quoteId)
+    protected async void DeleteQuote(int quoteId)
     {
-        // Implement deletion logic here, for example:
-        // quoteService.DeleteQuote(quoteId);
-        // Reload quotes after deletion
-        // Quotes = await quoteService.GetQuotes();
-        // FilteredQuotes = Quotes;
+        var response = await service.DeleteQuote(quoteId);
+
+        if (response.StatusCode == Common.Enums.Status.Success)
+        {
+            var quotesResponse = await service.GetAllQuotes();
+            if (quotesResponse.StatusCode == Common.Enums.Status.Success)
+            {
+                Quotes = (List<QuoteUI.Model.Quote>)quotesResponse.ReturnValue;
+                FilteredQuotes = Quotes;
+            }
+            else
+            {
+                Console.WriteLine("Failed to fetch quotes from the API after deletion.");
+
+            }
+        }
+        else
+        {
+            Console.WriteLine("Failed to delete quote.");
+        }
+
     }
 
 

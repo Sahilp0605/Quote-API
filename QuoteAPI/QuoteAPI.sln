@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuoteAPI", "QuoteAPI\QuoteAPI.csproj", "{33FADDA0-D272-4D8E-AABB-AA7123BAB9F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuoteAPI", "QuoteAPI\QuoteAPI.csproj", "{33FADDA0-D272-4D8E-AABB-AA7123BAB9F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuoteUI", "QuoteUI\QuoteUI\QuoteUI.csproj", "{A2646BDE-843E-4E3E-97EB-FD7AC23B05B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuoteUI", "QuoteUI\QuoteUI\QuoteUI.csproj", "{A2646BDE-843E-4E3E-97EB-FD7AC23B05B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuoteAPI.Common", "QuoteAPI.Common\QuoteAPI.Common.csproj", "{F89B43DA-DA32-4CEC-8A95-17D2C5FB18B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuoteAPI.Common", "QuoteAPI.Common\QuoteAPI.Common.csproj", "{F89B43DA-DA32-4CEC-8A95-17D2C5FB18B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

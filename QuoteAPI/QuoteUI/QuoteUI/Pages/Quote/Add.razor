@@ -1,0 +1,105 @@
+﻿@page "/Quote/add"
+@page "/Quote/edit/{id:int}"
+@using QuoteUI.Common
+<PageTitle>@Title Quotes</PageTitle>
+
+<h1>Quote</h1>
+
+<hr />
+
+<EditForm Model="@model" OnValidSubmit="SaveQuote">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="AuthorName" class="form-label">Author Name</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="model.Author" />
+        </div>
+        <span class="text-danger">
+            <ValidationMessage For="@(() => model.Author)" class="text-danger" />
+        </span>
+    </div>
+    
+    <div class="mb-3">
+        <label for="QuoteName" class="form-label">Quote Name</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="model.QuoteName" />
+        </div>
+        <ValidationMessage For="@(() => model.QuoteName)" />
+    </div>
+
+    <div class="mb-5 tags-wrapper">
+        <label class="form-label fs-6 fw-bold mb-3">Tags</label>
+        <div>
+            @foreach (var tag in model.Tags)
+            {
+                <span class="badge bg-primary">@tag</span>
+            }
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-light" @onclick="Cancel">Cancel</button>
+    </div>
+
+</EditForm>
+
+
+@code {
+    public QuoteUI.Model.Quote model { get; set; } = new();
+
+    ApiResponse ApiResponse = new ApiResponse();
+
+    [Inject]
+    protected QuoteUI.Service.QuoteService QuoteService { get; set; }
+    [Inject]
+    public NavigationManager UrlNavigationManager { get; set; }
+
+    [Parameter]
+    public int id { get; set; }
+
+    protected string Title = "Add";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (id != 0)
+        {
+            Title = "Edit";
+            ApiResponse = await QuoteService.GetQuoteById(id);
+
+            if (ApiResponse.StatusCode == Enums.Status.Success)
+            {
+                model = (QuoteUI.Model.Quote)ApiResponse.ReturnValue;
+            }
+            // ApiResponse.ReturnValue = model;
+        }
+    }
+
+
+    protected async Task SaveQuote()
+    {
+        if (model.Id != 0)
+        {
+            await Task.Run(() =>
+            {
+                QuoteService.UpdateQuote(model);
+            });
+        }
+        else
+        {
+            await Task.Run(() =>
+            {
+                QuoteService.CreateQuote(model);
+            });
+        }
+        Cancel();
+    }
+
+    public void Cancel()
+    {
+        UrlNavigationManager.NavigateTo("/fetchdata");
+    }
+
+
+}
