@@ -7,11 +7,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Content Remove="Pages\Quote\Index.razor" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\QuoteAPI.Common\QuoteAPI.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\Quote\Index.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Quote\Index.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Pages\Quote\Index.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
 </Project>

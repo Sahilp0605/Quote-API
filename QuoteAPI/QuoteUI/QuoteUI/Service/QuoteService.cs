@@ -1,6 +1,6 @@
-﻿using QuoteUI.Common;
+﻿using Newtonsoft.Json;
+using QuoteUI.Common;
 using QuoteUI.Model;
-using System.Text.Json.Serialization;
 
 namespace QuoteUI.Service
 {
@@ -50,7 +50,9 @@ namespace QuoteUI.Service
 
             if (response.IsSuccessStatusCode)
             {
-                var quote = await response.Content.ReadFromJsonAsync<Quote>();
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var quote = JsonConvert.DeserializeObject<List<QuoteUI.Model.Quote>>(jsonString);
+
                 return new ApiResponse
                 {
                     StatusCode = Enums.Status.Success,

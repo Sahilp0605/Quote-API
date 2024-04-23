@@ -1,13 +1,9 @@
-﻿@page "/fetchdata"
-
-<PageTitle>Quotes</PageTitle>
-
-@using QuoteUI.Data
+﻿@page "/fetchquote"
 @using QuoteUI.Service
-@inject WeatherForecastService ForecastService
-@inject QuoteService service
+@inject QuoteService services
 
-<h1>Quotes</h1>
+<h2>Quote Data</h2>
+<p>This component demonstrates CRUD operation on Quote data</p>
 
 <div class="row">
     <div class="col-md-6">
@@ -26,49 +22,42 @@
     </div>
 </div>
 
+<br />
 
-@if (FilteredQuotes == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Author</th>
+            <th>Quote</th>
+            <th>Tags</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var quote in FilteredQuotes)
+        {
             <tr>
-                <th>Author</th>
-                <th>Quote</th>
-                <th>Tags</th>
-                <th>Action</th>
+                <td>@quote.Author</td>
+                <td>@quote.QuoteName</td>
+                <td>@string.Join(", ", quote.Tags)</td>
+                <td>
+                    <a href="/Quote/edit/@quote.Id" class="btn btn-primary" role="button">Edit</a>
+                    <button class="btn btn-danger" @onclick="() => DeleteQuote(quote.Id)">Delete</button>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var quote in FilteredQuotes)
-            {
-                <tr>
-                    <td>@quote.Author</td>
-                    <td>@quote.QuoteName</td>
-                    <td>@string.Join(", ", quote.Tags)</td>
-                    <td>
-                        <a href="/Quote/edit/@quote.Id" class="btn btn-primary" role="button">Edit</a>
-                        <button class="btn btn-danger" @onclick="() => DeleteQuote(quote.Id)">Delete</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+        }
+    </tbody>
+</table>
 
-@code {
-    List<QuoteUI.Model.Quote> FilteredQuotes = new List<QuoteUI.Model.Quote>();
-    List<QuoteUI.Model.Quote> Quotes = new List<QuoteUI.Model.Quote>();
+@code{
     string SearchString { get; set; }
 
+    List<QuoteUI.Model.Quote> FilteredQuotes = new List<QuoteUI.Model.Quote>();
+    List<QuoteUI.Model.Quote> Quotes = new List<QuoteUI.Model.Quote>();
 
-
-    protected override async Task OnInitializedAsync()
+    private async Task FetchQuotesAsync()
     {
-        var response = await service.GetAllQuotes();
+        var response = await services.GetAllQuotes();
 
         if (response.StatusCode == Common.Enums.Status.Success)
         {
@@ -79,7 +68,6 @@ else
         {
             Console.WriteLine("Failed to fetch quotes from the API.");
         }
-
     }
 
     protected void FilterQuotes()
@@ -104,7 +92,6 @@ else
         FilterQuotes();
     }
 
-
     protected void DeleteQuote(int quoteId)
     {
         // Implement deletion logic here, for example:
@@ -113,6 +100,5 @@ else
         // Quotes = await quoteService.GetQuotes();
         // FilteredQuotes = Quotes;
     }
-
 
 }
