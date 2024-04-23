@@ -29,6 +29,7 @@
 
     <div class="mb-5 tags-wrapper">
         <label class="form-label fs-6 fw-bold mb-3">Tags</label>
+        <input class="form-control" id="tagsInput" placeholder="Enter tags separated by commas" @bind="tagsInput" @onkeydown="AddTag" />
         <div>
             @foreach (var tag in model.Tags)
             {
@@ -36,7 +37,6 @@
             }
         </div>
     </div>
-
 
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Save</button>
@@ -50,7 +50,7 @@
     public QuoteUI.Model.Quote model { get; set; } = new();
 
     ApiResponse ApiResponse = new ApiResponse();
-
+    private string tagsInput;
     [Inject]
     protected QuoteUI.Service.QuoteService QuoteService { get; set; }
     [Inject]
@@ -72,10 +72,28 @@
             {
                 model = (QuoteUI.Model.Quote)ApiResponse.ReturnValue;
             }
-            // ApiResponse.ReturnValue = model;
         }
     }
 
+    private void AddTag(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" || e.Key == ",")
+        {
+            if (!string.IsNullOrWhiteSpace(tagsInput))
+            {
+                var tags = tagsInput.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(tag => tag.Trim())
+                                    .Where(tag => !string.IsNullOrWhiteSpace(tag))
+                                    .Distinct()
+                                    .ToList();
+                foreach (var tag in tags)
+                {
+                    model.Tags.Add(tag);
+                }
+                tagsInput = string.Empty;
+            }
+        }
+    }
 
     protected async Task SaveQuote()
     {
